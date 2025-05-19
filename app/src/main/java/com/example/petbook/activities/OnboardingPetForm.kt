@@ -203,7 +203,7 @@ class OnboardingPetForm : ComponentActivity() {
                 AlertDialogExample(
                     onDismissRequest = {
                         this@OnboardingPetForm.showModal.value = false
-                        val intent = Intent(this@OnboardingPetForm, MainScreen::class.java)
+                        val intent = Intent(this@OnboardingPetForm, FeedActivity::class.java)
                         startActivity(intent)
                         finish()
                     }, onConfirmation = {

@@ -357,7 +357,7 @@ class LoginActivity : ComponentActivity() {
                     )
 
                     OnboardingStatus.ONBOARDING_COMPLETE -> Intent(
-                        this, MainScreen::class.java
+                        this, FeedActivity::class.java
                     )
 
                     OnboardingStatus.ERROR -> TODO()

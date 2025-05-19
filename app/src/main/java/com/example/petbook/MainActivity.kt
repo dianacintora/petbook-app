@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import com.example.petbook.activities.LoginActivity
-import com.example.petbook.activities.MainScreen
 import com.example.petbook.activities.OnboardingProfileForm
 import com.example.petbook.util.getCurrentUser
 import com.google.firebase.Firebase
