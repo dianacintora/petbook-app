@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Base64
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,19 +13,39 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.petbook.R
+import com.example.petbook.components.FormField
+import com.example.petbook.components.FormFieldArea
 import com.example.petbook.ui.theme.PetBookTheme
 import com.example.petbook.util.OnboardingStatus
 import com.example.petbook.util.bitmapToBase64
@@ -32,6 +53,8 @@ import com.example.petbook.util.getCurrentUser
 import com.example.petbook.util.storeDocument
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
+import java.io.ByteArrayOutputStream
+
 
 class OnboardingProfileForm : ComponentActivity() {
 
@@ -67,10 +90,10 @@ class OnboardingProfileForm : ComponentActivity() {
 
     @Composable
     fun UserProfileForm(profilePicture: Bitmap?) {
-        val nameText = remember { mutableStateOf("") }
-        val nickNameText = remember { mutableStateOf("") }
-        val townText = remember { mutableStateOf("") }
-        val descriptionText = remember { mutableStateOf("") }
+        val nameTextFieldState by remember { mutableStateOf(TextFieldState()) }
+        val nickNameTextFieldState by remember { mutableStateOf(TextFieldState()) }
+        val townTextFieldState by remember { mutableStateOf(TextFieldState()) }
+        val descriptionTextFieldState by remember { mutableStateOf(TextFieldState()) }
 
         val textFieldBoxModifier = Modifier.padding(vertical = 8.dp, horizontal = 0.dp)
         val formFieldModifier = Modifier
@@ -112,44 +135,43 @@ class OnboardingProfileForm : ComponentActivity() {
                 }
             }
             Box(modifier = textFieldBoxModifier) {
-                OutlinedTextField(
-                    value = nameText.value,
-                    onValueChange = { nameText.value = it },
-                    label = { Text("Nombre") },
-                    modifier = formFieldModifier
+                FormField(
+                    text = "Nombre:",
+                    modifier = formFieldModifier,
+                    inputType = KeyboardType.Email,
+                    textFieldState = nameTextFieldState
                 )
             }
             Box(modifier = textFieldBoxModifier) {
-                OutlinedTextField(
-                    value = nickNameText.value,
-                    onValueChange = { nickNameText.value = it },
-                    label = { Text("Nombre de usuario") },
-                    modifier = formFieldModifier
+                FormField(
+                    text = "Nombre de usuario:",
+                    modifier = formFieldModifier,
+                    inputType = KeyboardType.Email,
+                    textFieldState = nickNameTextFieldState
                 )
             }
             Box(modifier = textFieldBoxModifier) {
-                OutlinedTextField(
-                    value = townText.value,
-                    onValueChange = { townText.value = it },
-                    label = { Text("Colonia o localidad (opcional)") },
-                    modifier = formFieldModifier
+                FormField(
+                    text = "Colonia o localidad (opcional):",
+                    modifier = formFieldModifier,
+                    inputType = KeyboardType.Email,
+                    textFieldState = townTextFieldState
                 )
             }
-            OutlinedTextField(
-                value = descriptionText.value,
-                onValueChange = { descriptionText.value = it },
-                label = { Text("Descripción") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp)
+            Text("Añade una breve descripción a tu perfil:")
+            FormFieldArea(
+                modifier = Modifier.fillMaxWidth(),
+                inputType = KeyboardType.Text,
+                textFieldState = descriptionTextFieldState,
+                maxHeightInLines = 8
             )
             Button(
-                colors = ButtonDefaults.buttonColors(
+                colors = ButtonColors(
                     containerColor = MaterialTheme.colorScheme.onPrimary,
-                    contentColor = MaterialTheme.colorScheme.background
-                ),
-                modifier = Modifier.padding(vertical = 8.dp),
-                onClick = {
+                    contentColor = MaterialTheme.colorScheme.background,
+                    disabledContainerColor = ButtonDefaults.buttonColors().disabledContainerColor,
+                    disabledContentColor = ButtonDefaults.buttonColors().disabledContentColor
+                ), modifier = Modifier.padding(vertical = 8.dp), onClick = {
                     if (profilePicture == null) {
                         Toast.makeText(
                             this@OnboardingProfileForm,
@@ -158,7 +180,7 @@ class OnboardingProfileForm : ComponentActivity() {
                         ).show()
                         return@Button
                     }
-                    if (nameText.value.isEmpty()) {
+                    if (nameTextFieldState.text.isEmpty()) {
                         Toast.makeText(
                             this@OnboardingProfileForm,
                             "Por favor, agregue su nombre",
@@ -166,7 +188,7 @@ class OnboardingProfileForm : ComponentActivity() {
                         ).show()
                         return@Button
                     }
-                    if (nickNameText.value.isEmpty()) {
+                    if (nickNameTextFieldState.text.isEmpty()) {
                         Toast.makeText(
                             this@OnboardingProfileForm,
                             "Por favor, agregue un nombre de usuario",
@@ -176,13 +198,12 @@ class OnboardingProfileForm : ComponentActivity() {
                     }
                     submitProfileInfo(
                         bitmapToBase64(profilePicture),
-                        nameText.value,
-                        nickNameText.value,
-                        townText.value,
-                        descriptionText.value
+                        nameTextFieldState.text.toString(),
+                        nickNameTextFieldState.text.toString(),
+                        townTextFieldState.text.toString(),
+                        descriptionTextFieldState.text.toString(),
                     )
-                }
-            ) {
+                }) {
                 Text(text = "Continuar")
             }
         }
@@ -200,17 +221,14 @@ class OnboardingProfileForm : ComponentActivity() {
                 "town" to town,
                 "description" to description,
                 "onboardingStatus" to OnboardingStatus.PROFILE_COMPLETE
-            ),
-            onSuccess = {
+            ), onSuccess = {
                 val intent = Intent(this, OnboardingPetForm::class.java)
                 startActivity(intent)
-            },
-            onFail = {
+            }, onFail = {
                 Toast.makeText(
                     this, "Ocurrio un problema al actualizar su perfil", Toast.LENGTH_SHORT
                 ).show()
-            }
-        )
+            })
     }
 
     private fun createResultLauncher() {
