@@ -2,7 +2,6 @@ package com.example.petbook
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import com.example.petbook.activities.FeedActivity
 import com.example.petbook.activities.LoginActivity
@@ -11,7 +10,6 @@ import com.example.petbook.activities.OnboardingProfileForm
 import com.example.petbook.util.OnboardingStatus
 import com.example.petbook.util.getCurrentUser
 import com.example.petbook.util.getDocument
-import com.example.petbook.util.storeDocument
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
