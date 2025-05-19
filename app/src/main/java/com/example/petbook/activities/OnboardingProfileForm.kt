@@ -5,7 +5,6 @@ import android.graphics.Bitmap
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Base64
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -53,8 +52,6 @@ import com.example.petbook.util.getCurrentUser
 import com.example.petbook.util.storeDocument
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
-import java.io.ByteArrayOutputStream
-
 
 class OnboardingProfileForm : ComponentActivity() {
 
