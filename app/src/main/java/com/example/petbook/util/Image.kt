@@ -15,7 +15,10 @@ fun bitmapToBase64(bitmap: Bitmap?): String {
     return Base64.encodeToString(byteArray, Base64.DEFAULT)
 }
 
-fun Base64toBitmap(base64String: String): Bitmap {
+fun base64toBitmap(base64String: String): Bitmap? {
+    if (base64String.isEmpty()) {
+        return null
+    }
     val decodedBytes = Base64.decode(base64String, Base64.DEFAULT)
     return BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
 }

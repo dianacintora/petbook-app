@@ -7,7 +7,6 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,13 +17,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -50,34 +49,39 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.petbook.R
-import com.example.petbook.util.Base64toBitmap
+import com.example.petbook.util.base64toBitmap
 import com.example.petbook.util.getCurrentUser
 import com.example.petbook.util.getDocument
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.firestore
+import com.example.petbook.components.Card
+import com.example.petbook.models.Pet
+import com.example.petbook.util.getMultipleDocuments
 
 class ProfileActivity : ComponentActivity() {
 
-    private lateinit var db: FirebaseFirestore
     private var profilePictureState: MutableState<Bitmap?> = mutableStateOf(null)
     private var usernameState: MutableState<String> = mutableStateOf("")
     private var townState: MutableState<String> = mutableStateOf("")
-
+    private var petsState: MutableState<Array<Pet>> = mutableStateOf(arrayOf())
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        db = Firebase.firestore
+        val db: FirebaseFirestore = Firebase.firestore
         loadProfile(db)
+        loadPets(db)
         super.onCreate(savedInstanceState)
         setContent {
             val profilePicture by profilePictureState
             val username by usernameState
             val town by townState
+            val pets by petsState
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Color(0xFFCCE1F9))
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = 16.dp)
+                    .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.height(32.dp))
@@ -203,41 +207,8 @@ class ProfileActivity : ComponentActivity() {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // 🔹 Publicación
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp),
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White)
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            "✦ @${username} actualizó su foto",
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Image(
-                            painter = painterResource(id = R.drawable.kero_selfie),
-                            contentDescription = "Post",
-                            modifier = Modifier
-                                .size(150.dp)
-                                .clip(CircleShape)
-                                .scale(1.1f),
-                            contentScale = ContentScale.Crop
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Row(
-                            horizontalArrangement = Arrangement.SpaceEvenly,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Icon(Icons.Default.Search, contentDescription = "Buscar")
-                            Icon(Icons.Default.FavoriteBorder, contentDescription = "Like")
-                        }
-                    }
+                for (pet in pets) {
+                    Card(pet.name, pet.image)
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -273,14 +244,34 @@ class ProfileActivity : ComponentActivity() {
             }
         }
     }
+
     private fun loadProfile(db: FirebaseFirestore) {
-        getDocument(db, "users", "${getCurrentUser()?.uid}",
+        getDocument(
+            db, "users", "${getCurrentUser()?.uid}",
             { _ ->
                 print("Fail")
             }) { profileData ->
-                profilePictureState.value = Base64toBitmap(profileData["profilePicture"].toString())
-                usernameState.value = profileData["nickname"].toString()
-                townState.value = profileData["town"].toString()
+            profilePictureState.value = base64toBitmap(profileData["profilePicture"].toString())
+            usernameState.value = profileData["nickname"].toString()
+            townState.value = profileData["town"].toString()
+        }
+    }
+
+    private fun loadPets(db: FirebaseFirestore) {
+        var pets: MutableList<Pet> = mutableListOf()
+        getMultipleDocuments(
+            db, "users/${getCurrentUser()?.uid}/pets",
+            { _ ->
+                print("Fail")
+            }) { petData ->
+            val pet = Pet(
+                petData["name"].toString(),
+                petData["age"].toString().toInt(),
+                petData["description"].toString(),
+                petData["picture"].toString()
+            )
+            pets.add(pet)
+            petsState.value = pets.toTypedArray()
         }
     }
 }

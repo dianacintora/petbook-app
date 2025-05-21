@@ -49,3 +49,22 @@ fun getDocument(
         onFail(exception.message)
     }
 }
+
+fun getMultipleDocuments(
+    db: FirebaseFirestore,
+    path: String,
+    onFail: (String?) -> Unit,
+    onSuccess: (MutableMap<String, Any>) -> Unit
+) {
+    db.collection(path).get().addOnSuccessListener { result ->
+        for (document in result) {
+            if (document.exists()) {
+                onSuccess(document.data)
+            } else {
+                onFail("Failed to retrieve document")
+            }
+        }
+    }.addOnFailureListener { exception ->
+        onFail(exception.message)
+    }
+}

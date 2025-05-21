@@ -255,6 +255,7 @@ class OnboardingPetForm : ComponentActivity() {
             path = "users/${user!!.uid}/pets",
             document = petName,
             data = hashMapOf(
+                "name" to petName,
                 "age" to age,
                 "race" to race,
                 "picture" to picture,
