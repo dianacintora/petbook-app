@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.sp
 
 
 @Composable
-fun Card(title: String, image: Bitmap?) {
+fun Card(title: String, content: String, image: Bitmap?) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -63,11 +63,15 @@ fun Card(title: String, image: Bitmap?) {
                 )
             }
             Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                content,
+                fontSize = 12.sp,
+            )
+            Spacer(modifier = Modifier.height(12.dp))
             Row(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Icon(Icons.Default.Search, contentDescription = "Buscar")
                 Icon(Icons.Default.FavoriteBorder, contentDescription = "Like")
             }
         }

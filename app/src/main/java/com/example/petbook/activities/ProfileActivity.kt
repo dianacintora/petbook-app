@@ -65,6 +65,7 @@ class ProfileActivity : ComponentActivity() {
     private var usernameState: MutableState<String> = mutableStateOf("")
     private var townState: MutableState<String> = mutableStateOf("")
     private var petsState: MutableState<Array<Pet>> = mutableStateOf(arrayOf())
+    private var profileDescriptionState: MutableState<String> = mutableStateOf("")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         val db: FirebaseFirestore = Firebase.firestore
@@ -76,6 +77,7 @@ class ProfileActivity : ComponentActivity() {
             val username by usernameState
             val town by townState
             val pets by petsState
+            val profileDescription by profileDescriptionState
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -206,9 +208,11 @@ class ProfileActivity : ComponentActivity() {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                Card("Acerca de ti", profileDescription, null)
+
                 // 🔹 Publicación
                 for (pet in pets) {
-                    Card(pet.name, pet.image)
+                    Card(pet.name, "$username ha presentado a ${pet.name}", pet.image,)
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -254,6 +258,7 @@ class ProfileActivity : ComponentActivity() {
             profilePictureState.value = base64toBitmap(profileData["profilePicture"].toString())
             usernameState.value = profileData["nickname"].toString()
             townState.value = profileData["town"].toString()
+            profileDescriptionState.value = profileData["description"].toString()
         }
     }
 
