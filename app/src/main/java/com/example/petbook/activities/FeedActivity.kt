@@ -123,6 +123,10 @@ class FeedActivity : ComponentActivity() {
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(vertical = 8.dp)
+                                        .clickable {
+                                            val intent = Intent(this@FeedActivity, MapActivity::class.java)
+                                            startActivity(intent)
+                                        }
                                 ) {
                                     Icon(
                                         painter = painterResource(id = R.drawable.ic_estetoscopio),
