@@ -85,7 +85,6 @@ class ProfileActivity : ComponentActivity() {
             ) {
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // 🔹 Top bar
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
