@@ -280,15 +280,3 @@ class ProfileActivity : ComponentActivity() {
         }
     }
 }
-
-@Composable
-fun ProfileDataLine(label: String, value: String) {
-    Text(
-        buildAnnotatedString {
-            append("$label ")
-            addStyle(SpanStyle(fontWeight = FontWeight.Bold), 0, label.length)
-            append(value)
-        },
-        fontSize = 14.sp
-    )
-}

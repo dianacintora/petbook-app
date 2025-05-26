@@ -221,6 +221,7 @@ class OnboardingProfileForm : ComponentActivity() {
             ), onSuccess = {
                 val intent = Intent(this, OnboardingPetForm::class.java)
                 startActivity(intent)
+                finish()
             }, onFail = {
                 Toast.makeText(
                     this, "Ocurrio un problema al actualizar su perfil", Toast.LENGTH_SHORT
