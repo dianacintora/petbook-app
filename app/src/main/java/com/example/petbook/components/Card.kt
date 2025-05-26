@@ -2,6 +2,7 @@ package com.example.petbook.components
 
 import android.graphics.Bitmap
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,11 +33,13 @@ import androidx.compose.ui.unit.sp
 
 
 @Composable
-fun Card(title: String, content: String, image: Bitmap?) {
+fun Card(title: String, content: String, image: Bitmap?, onclick: () -> Unit = {}) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 8.dp),
+            .padding(horizontal = 8.dp, vertical = 8.dp).clickable() {
+                onclick()
+            },
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ) {

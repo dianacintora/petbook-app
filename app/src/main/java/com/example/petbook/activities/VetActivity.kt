@@ -2,6 +2,7 @@ package com.example.petbook.activities
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
@@ -37,17 +38,18 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import com.example.petbook.R
 import com.example.petbook.components.AlertDialogExample
-import com.example.petbook.components.MapGoogle
+import com.example.petbook.components.Card
+import com.example.petbook.models.Vet
 import com.example.petbook.ui.theme.PetBookTheme
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
 
-class MapActivity: ComponentActivity() {
+class VetActivity: ComponentActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var location: MutableState<Location?> = mutableStateOf(null)
     private var showModal = mutableStateOf(false)
-    private lateinit var vetLocation: LatLng
+    private var vetList: Array<Vet> = arrayOf(Vet("Vet1", "Description", "", LatLng(20.730117, -103.428105)), Vet("Vet2", "Description", "", LatLng(20.730117, -103.428105)))
 
     @SuppressLint("MissingPermission")
     private val requestPermissionLauncher = registerForActivityResult(
@@ -92,8 +94,6 @@ class MapActivity: ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         obtainLastLocation()
-        val intent = intent
-        vetLocation = LatLng(intent.getDoubleExtra("latitude", 0.0), intent.getDoubleExtra("longitude", 0.0))
         setContent {
             val currentLocation by this.location
             val showModal by this.showModal
@@ -136,24 +136,48 @@ class MapActivity: ComponentActivity() {
                                 fontSize = 32.sp,
                                 textAlign = TextAlign.Center
                             )
-                            currentLocation?.let { MapGoogle(it, vetLocation) }
                             if (showModal) {
                                 AlertDialogExample(
                                     onDismissRequest = {
-                                        this@MapActivity.showModal.value = false
+                                        this@VetActivity.showModal.value = false
                                         finish()
                                     }, onConfirmation = {
-                                        this@MapActivity.showModal.value = false
+                                        this@VetActivity.showModal.value = false
                                         obtainLastLocation()
                                     }, "Acceso a la ubicación", "Para continuar es necesario solicitar acceso a la localización"
                                 )
                             }
-
+                            for(vet in vetList) {
+                                if(currentLocation != null) {
+                                    val distance = calculateDistance(currentLocation!!, vet.location)
+                                    if(distance < 5000)
+                                    {
+                                        Card(vet.name, vet.description, vet.image, onclick = {
+                                            val intent = Intent(this@VetActivity, MapActivity::class.java)
+                                            intent.putExtra("longitude", vet.location.longitude)
+                                            intent.putExtra("latitude", vet.location.latitude)
+                                            startActivity(intent)
+                                        })
+                                    }
+                                }
+                                else {
+                                    Card(vet.name, vet.description, vet.image, onclick = {
+                                        val intent = Intent(this@VetActivity, MapActivity::class.java)
+                                        intent.putExtra("longitude", vet.location.longitude)
+                                        intent.putExtra("latitude", vet.location.latitude)
+                                        startActivity(intent)
+                                    })
+                                }
+                            }
                         }
                     }
                 }
             }
         }
     }
-
+    private fun calculateDistance(currentLocation: Location, target: LatLng) : Float {
+        val results = FloatArray(1)
+        val targetLocation = Location.distanceBetween(currentLocation.latitude, currentLocation.longitude, target.latitude, target.longitude, results)
+        return results[0]
+    }
 }

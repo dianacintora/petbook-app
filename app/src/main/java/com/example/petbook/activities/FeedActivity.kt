@@ -122,7 +122,7 @@ class FeedActivity : ComponentActivity() {
                                         .fillMaxWidth()
                                         .padding(vertical = 8.dp)
                                         .clickable {
-                                            val intent = Intent(this@FeedActivity, MapActivity::class.java)
+                                            val intent = Intent(this@FeedActivity, VetActivity::class.java)
                                             startActivity(intent)
                                         }
                                 ) {
