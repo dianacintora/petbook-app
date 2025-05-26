@@ -31,7 +31,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,8 +42,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -212,7 +209,7 @@ class ProfileActivity : ComponentActivity() {
 
                 // 🔹 Publicación
                 for (pet in pets) {
-                    Card(pet.name, "$username ha presentado a ${pet.name}", pet.image,)
+                    Card(pet.name, "$username ha presentado a ${pet.name}", pet.image)
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -263,7 +260,7 @@ class ProfileActivity : ComponentActivity() {
     }
 
     private fun loadPets(db: FirebaseFirestore) {
-        var pets: MutableList<Pet> = mutableListOf()
+        val pets: MutableList<Pet> = mutableListOf()
         getMultipleDocuments(
             db, "users/${getCurrentUser()?.uid}/pets",
             { _ ->
